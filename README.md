@@ -13,5 +13,6 @@ Images are in Git LFS, laid out like the game's `data/` folder and named `<artis
 - `data/json/loading/` for the base game
 - `data/mods/<mod>/loading/` for a mod
 
-Every merge to `main` goes into the [`nightly`](../../releases/tag/nightly) release. Run `just loading-screens` in a
-Cataclysm-BN checkout to download it.
+Every merge to `main` updates the [`experimental`](../../releases/tag/experimental) release. Each day with image changes
+also gets its own release, tagged `YYYY-MM-DD`. Run `just loading-screens` in a Cataclysm-BN checkout to download
+`experimental`, or `just loading-screens 2026-11-24` for one day.

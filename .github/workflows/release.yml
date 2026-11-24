@@ -13,12 +13,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
-        with: { lfs: true }
+        with: { lfs: true, fetch-depth: 0 }
       - run: |
           tar -czf loading-screens.tar.gz data
-          git tag -f nightly && git push -f origin nightly
-          gh release view nightly >/dev/null 2>&1 || gh release create nightly --prerelease --title nightly --notes "data/ from main. Updated on each change to data/."
-          gh release upload nightly loading-screens.tar.gz --clobber
+          sha=$(git rev-parse --short HEAD)
+          git tag -f experimental && git push -f origin experimental
+          gh release view experimental >/dev/null 2>&1 || gh release create experimental --title experimental --notes ""
+          gh release edit experimental --title "Experimental @ $(date -u '+%F %T') ($sha)" --notes "data/ from $sha"
+          gh release upload experimental loading-screens.tar.gz --clobber
+          today=$(date -u +%F)
+          last=$(git tag -l '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' | sort | tail -1)
+          if [ -z "$last" ] || [ "$last" = "$today" ] || [ "$(git rev-parse "$last:data")" != "$(git rev-parse HEAD:data)" ]; then
+            git tag -f "$today" && git push -f origin "$today"
+            gh release view "$today" >/dev/null 2>&1 || gh release create "$today" --prerelease --title "Nightly $today" --notes "data/ on $today"
+            gh release upload "$today" loading-screens.tar.gz --clobber
+          fi
         env: { GH_TOKEN: "${{ github.token }}" }
       - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
       - run: |
