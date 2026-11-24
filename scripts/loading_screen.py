@@ -168,7 +168,7 @@ def collage(out: Path, columns: int = 4, tile: tuple[int, int] = (384, 216)) -> 
     sheet = Image.new("RGB", (tile[0] * columns, tile[1] * rows))
     font = ImageFont.load_default(16)
     for i, path in enumerate(paths):
-        thumb = ImageOps.fit(open_image(path.read_bytes()).convert("RGB"), tile, Image.Resampling.LANCZOS)
+        thumb = ImageOps.pad(open_image(path.read_bytes()).convert("RGB"), tile, Image.Resampling.LANCZOS)
         author, _, title = path.stem.partition("_")
         ImageDraw.Draw(thumb).text(
             (8, tile[1] - 8), f"{title} by {author}", "white", font, "ld", stroke_width=2, stroke_fill="black"
