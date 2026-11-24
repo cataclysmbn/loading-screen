@@ -218,8 +218,8 @@ def submit() -> None:
             reply = f"Opened {pr} for review."
         if new_mod:
             reply += (
-                f'\n\n`{path.parent}/` is new. To show it in game, add `"loading_images": [ "loading/" ]` to the'
-                " mod's `modinfo.json` in a separate pull request to https://github.com/cataclysmbn/Cataclysm-BN."
+                "\n\nNote: also open a PR in https://github.com/cataclysmbn/Cataclysm-BN adding"
+                ' `"loading_images": [ "loading/" ]` to this mod\'s `modinfo.json`, or the image won\'t show in game.'
             )
         comment(reply)
     except Rejected as e:
