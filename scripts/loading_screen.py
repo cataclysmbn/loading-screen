@@ -122,6 +122,10 @@ def download(url: str) -> bytes:
     return data
 
 
+def kib(size: int) -> str:
+    return f"{size} ({size / 1024:.1f} KiB)"
+
+
 def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
     fields = form_fields(issue.get("body") or "")
     checklist = fields.get("Checklist", "").lower()
@@ -151,8 +155,8 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
         [
             "|          | Format | Size | Bytes |",
             "| -------- | ------ | ---- | ----: |",
-            f"| Original | {source.format} | {source.width}x{source.height} | {len(original)} |",
-            f"| Output   | WebP, {mode} | {img.width}x{img.height} | {len(data)} |",
+            f"| Original | {source.format} | {source.width}x{source.height} | {kib(len(original))} |",
+            f"| Output   | WebP, {mode} | {img.width}x{img.height} | {kib(len(data))} |",
         ]
     )
     return path, data, f'feat: add "{title}" by {author}', table, coauthor
