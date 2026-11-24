@@ -29,4 +29,3 @@ jobs:
           git add collage.webp
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "chore: update collage"
           git push -f origin assets
-          curl -sS "https://purge.jsdelivr.net/gh/$GITHUB_REPOSITORY@assets/collage.webp"
