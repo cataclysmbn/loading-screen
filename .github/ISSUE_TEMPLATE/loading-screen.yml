@@ -1,0 +1,49 @@
+name: Loading screen
+description: Submit an image for the loading screen.
+title: "Loading screen: "
+labels: [loading screen]
+body:
+  - type: input
+    id: artist
+    attributes:
+      label: Artist
+      description: Name shown in game. Underscores become spaces.
+    validations: { required: true }
+  - type: input
+    id: title
+    attributes: { label: Title }
+    validations: { required: true }
+  - type: dropdown
+    id: target
+    attributes:
+      label: Target
+      description: core shows it in the base game; a mod name shows it only with that mod.
+      options: [core, My_Sweet_Cataclysm, classic_zombies, innawoods]
+    validations: { required: true }
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      description: Pixel art is kept lossless and scaled down only by whole factors.
+      options: [Illustration, Pixel art, Photo edit]
+    validations: { required: true }
+  - type: textarea
+    id: image
+    attributes:
+      label: Image
+      description: Drag one image here. The bot converts it to WebP under 128 KiB.
+    validations: { required: true }
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Checklist
+      description: We try to be careful with copyright issues.
+      options:
+        - label: I made this image, or the artist gave permission to use it as a loading screen.
+          required: true
+        - label: It contains no traced or copied material from other works (movies, games, photos).
+          required: true
+        - label: This image is not AI-generated.
+          required: true
+        - label: It is SFW.
+          required: true

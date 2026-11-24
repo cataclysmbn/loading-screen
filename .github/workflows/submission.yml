@@ -1,0 +1,19 @@
+name: submission
+
+on:
+  issues: { types: [opened, edited] }
+
+permissions: { contents: write, pull-requests: write, issues: write }
+
+concurrency: { group: "submission-${{ github.event.issue.number }}" }
+
+jobs:
+  submit:
+    if: github.event.issue.state == 'open' && contains(github.event.issue.labels.*.name, 'loading screen')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with: { lfs: true }
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - run: git lfs install --local && uv run scripts/loading_screen.py submit
+        env: { GH_TOKEN: "${{ github.token }}" }
