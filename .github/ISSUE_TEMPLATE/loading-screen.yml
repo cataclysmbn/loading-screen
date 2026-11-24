@@ -18,21 +18,30 @@ body:
     attributes:
       label: Target
       description: Pick core for base game. Pick a mod to show image only with that mod.
-      options: [core, My_Sweet_Cataclysm, classic_zombies, innawoods]
+      options: [core, My_Sweet_Cataclysm, classic_zombies, innawoods, Other]
     validations: { required: true }
-  - type: dropdown
-    id: kind
+  - type: input
+    id: mod
     attributes:
-      label: Kind
-      description: Pick Pixel art for lossless WebP, shrunk only by whole factors (1/2, 1/3).
-      options: [Illustration, Pixel art, Photo edit]
-    validations: { required: true }
+      label: Other mod
+      description: If you picked Other, type the mod's folder name in data/mods/.
+  - type: checkboxes
+    id: pixel-art
+    attributes:
+      label: Pixel art
+      options:
+        - label: Keep pixels sharp. Output is lossless WebP, shrunk only by whole factors (1/2, 1/3).
   - type: textarea
     id: image
     attributes:
       label: Image
       description: Drag one image here, 10 MiB or less. Output is WebP, 128 KiB or less.
     validations: { required: true }
+  - type: input
+    id: coauthor
+    attributes:
+      label: Co-author
+      description: If you submit for someone else, type their GitHub username to credit them in the commit.
   - type: checkboxes
     id: rights
     attributes:

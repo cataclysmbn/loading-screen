@@ -104,12 +104,12 @@ def convert(img: Image.Image, pixel_art: bool) -> tuple[bytes, Image.Image, str]
 
 def form_fields(body: str) -> dict[str, str]:
     parts = re.split(r"^### (.+)$", body, flags=re.MULTILINE)
-    return {k.strip(): v.strip() for k, v in zip(parts[1::2], parts[2::2])}
+    return {k.strip(): "" if v.strip() == "_No response_" else v.strip() for k, v in zip(parts[1::2], parts[2::2])}
 
 
 def clean_name(text: str, label: str) -> str:
     text = " ".join(re.sub(r"[^\w .,'()&+!-]|_", " ", text).split())[:60].strip(" .-")
-    if not text or text == "_No response_":
+    if not text:
         raise Rejected(f"{label} is empty")
     return text
 
@@ -122,7 +122,7 @@ def download(url: str) -> bytes:
     return data
 
 
-def prepare(issue: dict) -> tuple[Path, bytes, str, str]:
+def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
     fields = form_fields(issue.get("body") or "")
     checklist = fields.get("Checklist", "")
     if "- [ ]" in checklist or checklist.count("- [X]") < 4:
@@ -130,15 +130,20 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str]:
     author = clean_name(fields.get("Artist", ""), "Artist")
     title = clean_name(fields.get("Title", ""), "Title")
     target = fields.get("Target", "")
+    if target == "Other":
+        target = fields.get("Other mod", "")
+    if not re.fullmatch(r"[\w-]+", target):
+        raise Rejected(f"unknown mod folder {target!r}" if target else "Other mod is empty")
     folder = Path("data/json/loading" if target == "core" else f"data/mods/{target}/loading")
-    if not re.fullmatch(r"\w+", target) or not folder.is_dir():
-        raise Rejected(f"unknown target {target!r}")
+    coauthor = fields.get("Co-author", "").removeprefix("@")
+    if coauthor and not re.fullmatch(r"[A-Za-z0-9-]{1,39}", coauthor):
+        raise Rejected(f"Co-author {coauthor!r} is not a GitHub username")
     urls = set(ATTACHMENT.findall(fields.get("Image", "")))
     if len(urls) != 1:
         raise Rejected("upload exactly one image in the Image field")
     original = download(urls.pop())
     source = open_image(original)
-    data, img, mode = convert(source, fields.get("Kind") == "Pixel art")
+    data, img, mode = convert(source, "[X]" in fields.get("Pixel art", ""))
     path = folder / f"{author}_{title}.webp"
     if path.exists():
         raise Rejected(f"{path} already exists")
@@ -150,7 +155,7 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str]:
             f"| Output   | WebP, {mode} | {img.width}x{img.height} | {len(data)} |",
         ]
     )
-    return path, data, f'feat: add "{title}" by {author}', table
+    return path, data, f'feat: add "{title}" by {author}', table, coauthor
 
 
 def collage(out: Path, columns: int = 4, tile: tuple[int, int] = (384, 216)) -> None:
@@ -182,13 +187,20 @@ def submit() -> None:
         gh("issue", "comment", str(number), "--repo", repo, "--body", text)
 
     try:
-        path, data, subject, table = prepare(issue)
+        path, data, subject, table, coauthor = prepare(issue)
+        trailers = ""
+        for login in dict.fromkeys(filter(None, [user["login"], coauthor])):
+            try:
+                uid = gh("api", f"users/{login}", "--jq", ".id")
+            except subprocess.CalledProcessError:
+                raise Rejected(f"no GitHub user {login!r}")
+            trailers += f"Co-authored-by: {login} <{uid}+{login}@users.noreply.github.com>\n"
         branch = f"submission/{number}"
         git("switch", "-C", branch)
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
         git("add", "--", path.as_posix())
-        coauthor = f"{user['login']} <{user['id']}+{user['login']}@users.noreply.github.com>"
-        message = f"{subject}\n\nArtist permission checklist: #{number}\n\nCo-authored-by: {coauthor}\n"
+        message = f"{subject}\n\nArtist permission checklist: #{number}\n\n{trailers}"
         bot = ["-c", "user.name=github-actions[bot]", "-c", f"user.email={BOT_EMAIL}"]
         git(*bot, "commit", "-F", "-", data=message.encode())
         if errors := check(path):
