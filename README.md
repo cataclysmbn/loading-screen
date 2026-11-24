@@ -1,30 +1,15 @@
 # Loading screens
 
-Loading screen images for [Cataclysm: Bright Nights](https://github.com/cataclysmbn/Cataclysm-BN). Paths match game
-`data/` folder:
+Loading screen images for [Cataclysm: Bright Nights](https://github.com/cataclysmbn/Cataclysm-BN).
 
-- `data/json/loading/`: base game
-- `data/mods/<mod>/loading/`: one mod
+To submit one, [open an issue](../../issues/new?template=loading-screen.yml) and attach the image. We try to be careful
+with copyright issues: send only your own work or art you have the artist's permission to use, and nothing traced,
+copied, AI-generated or NSFW.
 
-Name each file `<artist>_<title>.webp`. Game shows text before first `_` as artist name.
+Images are in Git LFS, laid out like the game's `data/` folder and named `<artist>_<title>.webp`:
 
-Each change to `main` updates [`nightly` release](../../releases/tag/nightly). Cataclysm-BN builds extract its archive
-into game folder. To get images in a local Cataclysm-BN checkout, run `just loading-screens`.
+- `data/json/loading/` for the base game
+- `data/mods/<mod>/loading/` for a mod
 
-## Submit an image
-
-1. Open a [loading screen issue](../../issues/new?template=loading-screen.yml).
-2. Drag image into Image field and check all boxes.
-3. Open pull request link from bot comment. Pull request has your image as WebP, 128 KiB or less.
-4. Maintainer reviews and merges it.
-
-We try to be careful with copyright issues. Submit only images that you made or that artist allowed us to use. Do not
-submit traced, copied, AI-generated or NSFW images.
-
-## Check images
-
-Images use Git LFS. Before you open a pull request by hand, run:
-
-```sh
-uv run scripts/loading_screen.py check data/json/loading/<artist>_<title>.webp
-```
+Every merge to `main` goes into the [`nightly`](../../releases/tag/nightly) release. Run `just loading-screens` in a
+Cataclysm-BN checkout to download it.
