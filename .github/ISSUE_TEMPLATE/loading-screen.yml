@@ -10,7 +10,7 @@ body:
       description: Name shown in game. Underscores become spaces.
     validations: { required: true }
   - type: input
-    id: title
+    id: image-title
     attributes: { label: Title }
     validations: { required: true }
   - type: dropdown
