@@ -197,6 +197,7 @@ def submit() -> None:
             trailers += f"Co-authored-by: {login} <{uid}+{login}@users.noreply.github.com>\n"
         branch = f"submission/{number}"
         git("switch", "-C", branch)
+        new_mod = not path.parent.is_dir()
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
         git("add", "--", path.as_posix())
@@ -215,6 +216,11 @@ def submit() -> None:
         else:
             pr = gh("pr", "create", "--repo", repo, "--head", branch, "--title", subject, "--body", body)
             reply = f"Opened {pr} for review."
+        if new_mod:
+            reply += (
+                f'\n\n`{path.parent}/` is new. To show it in game, add `"loading_images": [ "loading/" ]` to the'
+                " mod's `modinfo.json` in a separate pull request to https://github.com/cataclysmbn/Cataclysm-BN."
+            )
         comment(reply)
     except Rejected as e:
         comment(f"Could not prepare image:\n\n{e}\n\nEdit this issue to try again.")
