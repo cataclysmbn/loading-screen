@@ -1,24 +1,29 @@
 # Loading screens
 
-Loading screen images for [Cataclysm: Bright Nights](https://github.com/cataclysmbn/Cataclysm-BN). Release
-builds copy `data/` from this repository into the game's `data/`, so files here use the game's paths:
+Loading screen images for [Cataclysm: Bright Nights](https://github.com/cataclysmbn/Cataclysm-BN). Paths match game
+`data/` folder:
 
-- `data/json/loading/` for the base game
-- `data/mods/<mod>/loading/` for a mod
+- `data/json/loading/`: base game
+- `data/mods/<mod>/loading/`: one mod
 
-The game shows the part of the file name before the first `_` as the artist: `<artist>_<title>.webp`.
+Name each file `<artist>_<title>.webp`. Game shows text before first `_` as artist name.
 
-## Submitting an image
+Each change to `main` updates [`nightly` release](../../releases/tag/nightly). Cataclysm-BN builds extract its archive
+into game folder. To get images in a local Cataclysm-BN checkout, run `just loading-screens`.
 
-Open a [loading screen issue](../../issues/new?template=loading-screen.yml) and attach the image. A bot converts it
-to WebP under 128 KiB and opens a pull request. A maintainer reviews and merges it.
+## Submit an image
 
-We try to be careful with copyright issues. Submit only images that you made or that the artist allowed us to use,
-with no traced or copied material, no AI generation and nothing NSFW.
+1. Open a [loading screen issue](../../issues/new?template=loading-screen.yml).
+2. Drag image into Image field and check all boxes.
+3. Open pull request link from bot comment. Pull request has your image as WebP, 128 KiB or less.
+4. Maintainer reviews and merges it.
 
-## Checking images
+We try to be careful with copyright issues. Submit only images that you made or that artist allowed us to use. Do not
+submit traced, copied, AI-generated or NSFW images.
 
-Images are stored with Git LFS. To check files before opening a pull request by hand:
+## Check images
+
+Images use Git LFS. Before you open a pull request by hand, run:
 
 ```sh
 uv run scripts/loading_screen.py check data/json/loading/<artist>_<title>.webp

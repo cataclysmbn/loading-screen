@@ -1,5 +1,5 @@
 name: Loading screen
-description: Submit an image for the loading screen.
+description: Submit a loading screen image.
 title: "Loading screen: "
 labels: [loading screen]
 body:
@@ -7,7 +7,7 @@ body:
     id: artist
     attributes:
       label: Artist
-      description: Name shown in game. Underscores become spaces.
+      description: Name to show in game.
     validations: { required: true }
   - type: input
     id: image-title
@@ -17,21 +17,21 @@ body:
     id: target
     attributes:
       label: Target
-      description: core shows it in the base game; a mod name shows it only with that mod.
+      description: Pick core for base game. Pick a mod to show image only with that mod.
       options: [core, My_Sweet_Cataclysm, classic_zombies, innawoods]
     validations: { required: true }
   - type: dropdown
     id: kind
     attributes:
       label: Kind
-      description: Pixel art is kept lossless and scaled down only by whole factors.
+      description: Pick Pixel art for lossless WebP, shrunk only by whole factors (1/2, 1/3).
       options: [Illustration, Pixel art, Photo edit]
     validations: { required: true }
   - type: textarea
     id: image
     attributes:
       label: Image
-      description: Drag one image here. The bot converts it to WebP under 128 KiB.
+      description: Drag one image here, 10 MiB or less. Output is WebP, 128 KiB or less.
     validations: { required: true }
   - type: checkboxes
     id: rights
@@ -39,11 +39,11 @@ body:
       label: Checklist
       description: We try to be careful with copyright issues.
       options:
-        - label: I made this image, or the artist gave permission to use it as a loading screen.
+        - label: I made this image, or its artist allowed us to use it as a loading screen.
           required: true
-        - label: It contains no traced or copied material from other works (movies, games, photos).
+        - label: No part is traced or copied from other works (movies, games, photos).
           required: true
-        - label: This image is not AI-generated.
+        - label: Not AI-generated.
           required: true
-        - label: It is SFW.
+        - label: Safe for work.
           required: true

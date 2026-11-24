@@ -17,6 +17,6 @@ jobs:
       - run: |
           tar -czf loading-screens.tar.gz data
           git tag -f nightly && git push -f origin nightly
-          gh release view nightly >/dev/null 2>&1 || gh release create nightly --prerelease --title nightly --notes "data/ of main, rebuilt on every change."
+          gh release view nightly >/dev/null 2>&1 || gh release create nightly --prerelease --title nightly --notes "data/ from main. Updated on each change to data/."
           gh release upload nightly loading-screens.tar.gz --clobber
         env: { GH_TOKEN: "${{ github.token }}" }

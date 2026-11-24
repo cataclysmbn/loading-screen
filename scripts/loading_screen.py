@@ -125,7 +125,7 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str]:
     fields = form_fields(issue.get("body") or "")
     checklist = fields.get("Checklist", "")
     if "- [ ]" in checklist or checklist.count("- [X]") < 4:
-        raise Rejected("every checklist item must be checked")
+        raise Rejected("check every checklist box")
     author = clean_name(fields.get("Artist", ""), "Artist")
     title = clean_name(fields.get("Title", ""), "Title")
     target = fields.get("Target", "")
@@ -172,7 +172,7 @@ def submit() -> None:
         path.write_bytes(data)
         git("add", "--", path.as_posix())
         coauthor = f"{user['login']} <{user['id']}+{user['login']}@users.noreply.github.com>"
-        message = f"{subject}\n\nSubmitted in #{number}, which has the artist's permission checklist.\n\nCo-authored-by: {coauthor}\n"
+        message = f"{subject}\n\nArtist permission checklist: #{number}\n\nCo-authored-by: {coauthor}\n"
         bot = ["-c", "user.name=github-actions[bot]", "-c", f"user.email={BOT_EMAIL}"]
         git(*bot, "commit", "-F", "-", data=message.encode())
         if errors := check(path):
@@ -189,10 +189,10 @@ def submit() -> None:
             reply = f"Opened {pr} for review."
         comment(reply)
     except Rejected as e:
-        comment(f"Could not prepare the image:\n\n{e}\n\nEdit the issue to try again.")
+        comment(f"Could not prepare image:\n\n{e}\n\nEdit this issue to try again.")
         sys.exit(1)
     except Exception:
-        comment(f"The bot failed: {run_url}")
+        comment(f"Bot failed: {run_url}")
         raise
 
 
