@@ -1,0 +1,22 @@
+name: release
+
+on:
+  push: { branches: [main], paths: ["data/**"] }
+  workflow_dispatch:
+
+permissions: { contents: write }
+
+concurrency: { group: release }
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with: { lfs: true }
+      - run: |
+          tar -czf loading-screens.tar.gz data
+          git tag -f nightly && git push -f origin nightly
+          gh release view nightly >/dev/null 2>&1 || gh release create nightly --prerelease --title nightly --notes "data/ of main, rebuilt on every change."
+          gh release upload nightly loading-screens.tar.gz --clobber
+        env: { GH_TOKEN: "${{ github.token }}" }
