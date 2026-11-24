@@ -124,8 +124,8 @@ def download(url: str) -> bytes:
 
 def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
     fields = form_fields(issue.get("body") or "")
-    checklist = fields.get("Checklist", "")
-    if "- [ ]" in checklist or checklist.count("- [X]") < 4:
+    checklist = fields.get("Checklist", "").lower()
+    if "- [ ]" in checklist or checklist.count("- [x]") < 4:
         raise Rejected("check every checklist box")
     author = clean_name(fields.get("Artist", ""), "Artist")
     title = clean_name(fields.get("Title", ""), "Title")
@@ -135,7 +135,7 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
     if not re.fullmatch(r"[\w-]+", target):
         raise Rejected(f"unknown mod folder {target!r}" if target else "Other mod is empty")
     folder = Path("data/json/loading" if target == "core" else f"data/mods/{target}/loading")
-    coauthor = fields.get("Co-author", "").removeprefix("@")
+    coauthor = re.sub(r"^(?:https?://github\.com/|@)", "", fields.get("Co-author", "")).strip("/")
     if coauthor and not re.fullmatch(r"[A-Za-z0-9-]{1,39}", coauthor):
         raise Rejected(f"Co-author {coauthor!r} is not a GitHub username")
     urls = set(ATTACHMENT.findall(fields.get("Image", "")))
@@ -143,7 +143,7 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str, str]:
         raise Rejected("upload exactly one image in the Image field")
     original = download(urls.pop())
     source = open_image(original)
-    data, img, mode = convert(source, "[X]" in fields.get("Pixel art", ""))
+    data, img, mode = convert(source, "[x]" in fields.get("Pixel art", "").lower())
     path = folder / f"{author}_{title}.webp"
     if path.exists():
         raise Rejected(f"{path} already exists")
