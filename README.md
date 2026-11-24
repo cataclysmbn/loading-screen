@@ -2,6 +2,8 @@
 
 Loading screen images for [Cataclysm: Bright Nights](https://github.com/cataclysmbn/Cataclysm-BN).
 
+![Collage of all loading screens](https://cdn.jsdelivr.net/gh/cataclysmbn/loading-screen@assets/collage.webp)
+
 To submit one, [open an issue](../../issues/new?template=loading-screen.yml) and attach the image. We try to be careful
 with copyright issues: send only your own work or art you have the artist's permission to use, and nothing traced,
 copied, AI-generated or NSFW.

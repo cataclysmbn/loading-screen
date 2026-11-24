@@ -2,9 +2,10 @@
 # requires-python = ">=3.12"
 # dependencies = ["pillow>=11"]
 # ///
-"""Check loading screens, or turn a submission issue into a pull request.
+"""Check loading screens, draw a collage of them, or turn a submission issue into a pull request.
 
 loading_screen.py check <path>...
+loading_screen.py collage <out.webp>
 loading_screen.py submit   (in GitHub Actions, on an issues event)
 """
 
@@ -19,7 +20,7 @@ import warnings
 from pathlib import Path
 from urllib.parse import quote
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 LIMIT = 128 * 1024
 MAX_DOWNLOAD = 10 * 1024 * 1024
@@ -152,6 +153,21 @@ def prepare(issue: dict) -> tuple[Path, bytes, str, str]:
     return path, data, f'feat: add "{title}" by {author}', table
 
 
+def collage(out: Path, columns: int = 4, tile: tuple[int, int] = (384, 216)) -> None:
+    paths = sorted(p for p in Path("data").rglob("*") if p.suffix.lower() in EXTENSIONS)
+    rows = -(-len(paths) // columns)
+    sheet = Image.new("RGB", (tile[0] * columns, tile[1] * rows))
+    font = ImageFont.load_default(16)
+    for i, path in enumerate(paths):
+        thumb = ImageOps.fit(open_image(path.read_bytes()).convert("RGB"), tile, Image.Resampling.LANCZOS)
+        author, _, title = path.stem.partition("_")
+        ImageDraw.Draw(thumb).text(
+            (8, tile[1] - 8), f"{title} by {author}", "white", font, "ld", stroke_width=2, stroke_fill="black"
+        )
+        sheet.paste(thumb, (i % columns * tile[0], i // columns * tile[1]))
+    sheet.save(out, "WEBP", quality=70, method=6)
+
+
 def gh(*args: str) -> str:
     return subprocess.run(["gh", *args], capture_output=True, check=True, text=True).stdout.strip()
 
@@ -202,6 +218,8 @@ if __name__ == "__main__":
             errors = [e for p in paths for e in check(Path(p))]
             print("\n".join(errors) or f"{len(paths)} file(s) OK")
             sys.exit(1 if errors else 0)
+        case ["collage", out]:
+            collage(Path(out))
         case ["submit"]:
             submit()
         case _:

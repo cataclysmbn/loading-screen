@@ -1,7 +1,7 @@
 name: release
 
 on:
-  push: { branches: [main], paths: ["data/**"] }
+  push: { branches: [main], paths: ["data/**", "scripts/loading_screen.py"] }
   workflow_dispatch:
 
 permissions: { contents: write }
@@ -20,3 +20,12 @@ jobs:
           gh release view nightly >/dev/null 2>&1 || gh release create nightly --prerelease --title nightly --notes "data/ from main. Updated on each change to data/."
           gh release upload nightly loading-screens.tar.gz --clobber
         env: { GH_TOKEN: "${{ github.token }}" }
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      - run: |
+          uv run scripts/loading_screen.py collage "$RUNNER_TEMP/collage.webp"
+          git switch --orphan assets
+          cp "$RUNNER_TEMP/collage.webp" collage.webp
+          git add collage.webp
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "chore: update collage"
+          git push -f origin assets
+          curl -sS "https://purge.jsdelivr.net/gh/$GITHUB_REPOSITORY@assets/collage.webp"
